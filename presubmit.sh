@@ -38,7 +38,8 @@ PACKAGE_DIR="./noteserver"
 
 phase "linting"
 # Exits nonzero if code quality score is less than `fail-under`.
-pylint --jobs=0 --fail-under=10 --indent-string="  " $PACKAGE_DIR
+pylint --jobs=0 --fail-under=10 --indent-string="  " \
+  --load-plugins="pylint.extensions.docparams" $PACKAGE_DIR
 if [[ $? -ne 0 ]]; then
   error "Linter errors."
 fi
