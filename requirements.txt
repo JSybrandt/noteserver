@@ -1,0 +1,4 @@
+# This file contains all python dependencies needed by Noteserver.
+# This file is parsed by setup.py to identify dependencies.
+# Make sure to specify both the package name and version number.
+
