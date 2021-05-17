@@ -2,3 +2,11 @@
 # This file is parsed by setup.py to identify dependencies.
 # Make sure to specify both the package name and version number.
 
+
+# Flask is used as both our webserver and LSP server. Flask is responsible for
+# receiving requests and sending responses to both browsers and editors.
+flask==2.0.0
+
+# The LSP is defined using json-rpcs. We use a python library that makes it
+# easier to work with json-rpcs and flask.
+json-rpc==1.13.0
