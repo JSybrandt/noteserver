@@ -36,20 +36,21 @@ fi
 
 PACKAGE_DIR="./noteserver"
 
-phase "linting"
-# Exits nonzero if code quality score is less than `fail-under`.
-pylint --jobs=0 --fail-under=10 --indent-string="  " \
-  --load-plugins="pylint.extensions.docparams" $PACKAGE_DIR
-if [[ $? -ne 0 ]]; then
-  error "Linter errors."
-fi
-
 phase "formatting"
 yapf --verbose --in-place --parallel --recursive \
   --style='{based_on_style: google indent_width: 2}' \
   "$PACKAGE_DIR"
 if [[ $? -ne 0 ]]; then
   error "Formatter error."
+fi
+
+phase "linting"
+# Exits nonzero if code quality score is less than `fail-under`.
+pylint --jobs=0 --fail-under=10 --indent-string="  " \
+  --function-naming-style="camelCase" \
+  --load-plugins="pylint.extensions.docparams" $PACKAGE_DIR
+if [[ $? -ne 0 ]]; then
+  error "Linter errors."
 fi
 
 phase "type checking"
