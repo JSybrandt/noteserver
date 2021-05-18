@@ -18,8 +18,8 @@ class FlaskServerTest(unittest.TestCase):
     with self.flask_app.test_client() as client:
       method = "test/method"
       params = {"test_param": "val"}
-      request = lsp_message.getLspMessage(method, params)
+      request = lsp_message.serializeRequest(method, params)
       response = client.post("/lsp", data=request)
-      actual_method, actual_params = lsp_message.parseLspMessage(response.data)
+      actual_method, actual_params = lsp_message.parseRequest(response.data)
       self.assertEqual(actual_method, method)
       self.assertEqual(actual_params, params)

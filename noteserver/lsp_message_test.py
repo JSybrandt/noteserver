@@ -15,14 +15,14 @@ class LSPMessageTest(unittest.TestCase):
         "int_param": 1,
         "float_param": 2.1,
     }
-    actual_method, actual_params = lsp_message.parseLspMessage(
-        lsp_message.getLspMessage(expected_method, expected_params))
+    actual_method, actual_params = lsp_message.parseRequest(
+        lsp_message.serializeRequest(expected_method, expected_params))
     self.assertEqual(actual_method, expected_method)
     self.assertEqual(actual_params, expected_params)
 
   def test_encode_lsp_message(self):
     """Tests that an encoded message matches an expected format."""
-    lsp_msg = lsp_message.getLspMessage("test_method", {"param": "val"})
+    lsp_msg = lsp_message.serializeRequest("test_method", {"param": "val"})
     tokens = lsp_msg.decode("utf-8").split("\r\n\r\n")
     self.assertEqual(len(tokens), 2)
     header, content = tokens

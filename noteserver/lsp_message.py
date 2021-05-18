@@ -6,7 +6,7 @@ from typing import Dict, Any, Tuple
 Parameters = Dict[str, Any]
 
 
-def getLspMessage(method: str, params: Parameters) -> bytes:
+def serializeRequest(method: str, params: Parameters) -> bytes:
   """Creates a LSP message with header and content components.
 
   Args:
@@ -32,7 +32,7 @@ def getLspMessage(method: str, params: Parameters) -> bytes:
   return header.encode("utf-8") + content
 
 
-def parseLspMessage(message: bytes) -> Tuple[str, Parameters]:
+def parseRequest(message: bytes) -> Tuple[str, Parameters]:
   """Extracts the method name and rpc parameters of a given LSP message.
 
   Args:

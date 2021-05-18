@@ -37,8 +37,8 @@ def createFlaskServer(name: str = __name__,
       A serialized LspMessage.
     """
     msg: bytes = flask.request.data
-    method, params = lsp_message.parseLspMessage(msg)
+    method, params = lsp_message.parseRequest(msg)
     logger.info("%s: %s", method, params)
-    return lsp_message.getLspMessage(method, params)
+    return lsp_message.serializeRequest(method, params)
 
   return app
