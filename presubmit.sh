@@ -47,7 +47,8 @@ fi
 phase "linting"
 # Exits nonzero if code quality score is less than `fail-under`.
 pylint --jobs=0 --fail-under=10 --indent-string="  " \
-  --function-naming-style="camelCase" \
+  --max-line-length=80 \
+  --good-names="i,j,id" \
   --load-plugins="pylint.extensions.docparams" $PACKAGE_DIR
 if [[ $? -ne 0 ]]; then
   error "Linter errors."

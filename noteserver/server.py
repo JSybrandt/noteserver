@@ -9,8 +9,8 @@ from flask import logging
 from noteserver import lsp_message
 
 
-def createFlaskServer(name: str = __name__,
-                      is_testing: bool = False) -> flask.Flask:
+def create_flask_server(name: str = __name__,
+                        is_testing: bool = False) -> flask.Flask:
   """Creates the Flask webserver.
 
   Args:
@@ -36,9 +36,9 @@ def createFlaskServer(name: str = __name__,
     Returns:
       A serialized LspMessage.
     """
-    msg: bytes = flask.request.data
-    method, params = lsp_message.parseRequest(msg)
-    logger.info("%s: %s", method, params)
-    return lsp_message.serializeRequest(method, params)
+    request = lsp_message.LspRequest.parse(flask.request.data)
+    logger.info("%s", request)
+    # Echo the request. Need to change this soon.
+    return request.serialize()
 
   return app
