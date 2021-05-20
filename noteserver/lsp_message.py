@@ -5,6 +5,17 @@ import json
 from typing import Dict, Any, Optional
 
 
+def _serialize_content_with_header(content: Dict[str, Any]) -> bytes:
+  """Writes serialized LSP message that includes a header and content."""
+  serialized_content = json.dumps(content).encode("utf-8")
+  # Each header parameter is terminated by \r\n, and the header itself is also
+  # terminated by \r\n.
+  header = (f"Content-Length: {len(serialized_content)}\r\n"
+            "Content-Type: application/vscode-jsonrpc;charset=utf-8\r\n"
+            "\r\n")
+  return header.encode("utf-8") + serialized_content
+
+
 @dataclasses.dataclass
 class LspRequest:
   """Describes a request RPC."""
@@ -24,18 +35,14 @@ class LspRequest:
       section. The header describes the content, while the content itself is a
       utf-8 encoded json-rpc message.
     """
-    content = json.dumps({
+    content = {
         "jsonrpc": "2.0",
         "id": self.id,
         "method": self.method,
-        "params": self.params,
-    }).encode("utf-8")
-    # Each header parameter is terminated by \r\n, and the header itself is also
-    # terminated by \r\n.
-    header = (f"Content-Length: {len(content)}\r\n"
-              "Content-Type: application/vscode-jsonrpc;charset=utf-8\r\n"
-              "\r\n")
-    return header.encode("utf-8") + content
+    }
+    if self.params is not None:
+      content["params"] = self.params
+    return _serialize_content_with_header(content)
 
   @classmethod
   def parse(cls, message: bytes) -> LspRequest:
@@ -58,3 +65,19 @@ class LspRequest:
       if key not in content:
         raise ValueError(f"Serialized LSP Request does not contain {key}")
     return LspRequest(content["id"], content["method"], content["params"])
+
+
+@dataclasses.dataclass
+class LspError:
+  """Describes an error to be transmitted over the LSP protocol."""
+  code: int
+  message: str
+  data: Optional[Any]
+
+
+@dataclasses.dataclass
+class LspResponse:
+  """Describes a response RPC."""
+  id: int
+  result: Optional[Any] = None
+  error: Optional[LspError] = None
