@@ -43,3 +43,47 @@ class LSPMessageTest(unittest.TestCase):
                 "param": "val"
             }
         })
+
+  def test_lsp_request_str_no_param(self):
+    """LspRequest.__str__ matches the expected format without params."""
+    request = lsp_message.LspRequest(id=1, method="test/method")
+    self.assertEqual(str(request), "Request[1][test/method]")
+
+  def test_lsp_request_str_with_param(self):
+    """LspRequest.__str__ matches the expected format with params."""
+    request = lsp_message.LspRequest(id=1,
+                                     method="test/method",
+                                     params={"param": "val"})
+    self.assertEqual(str(request), "Request[1][test/method] : {'param': 'val'}")
+
+  def test_lsp_response_str_only_id(self):
+    """LspResponse.__str__ with only id matches the expected format."""
+    response = lsp_message.LspResponse(id=1)
+    self.assertEqual(str(response), "Response[1]")
+
+  def test_lsp_response_str_id_and_result(self):
+    """LspResponse.__str__ with id and result matches the expected format."""
+    # Int result
+    response = lsp_message.LspResponse(id=1, result=10)
+    self.assertEqual(str(response), "Response[1] : 10")
+    # Str result
+    response = lsp_message.LspResponse(id=1, result="foo")
+    self.assertEqual(str(response), "Response[1] : foo")
+    # Dict result
+    response = lsp_message.LspResponse(id=1, result={"foo": "bar"})
+    self.assertEqual(str(response), "Response[1] : {'foo': 'bar'}")
+
+  def test_lsp_response_str_id_and_error(self):
+    """LspResponse.__str__ with id and error matches the format."""
+    response = lsp_message.LspResponse(id=1,
+                                       error=lsp_message.LspError(
+                                           code=2, message="msg"))
+    self.assertEqual(str(response), "Response[1] : < Error[2] : msg >")
+
+  def test_lsp_response_str_id_result_error(self):
+    """LspResponse.__str__ with id, result, and error matches the format."""
+    response = lsp_message.LspResponse(id=1,
+                                       result=2,
+                                       error=lsp_message.LspError(
+                                           code=3, message="msg"))
+    self.assertEqual(str(response), "Response[1] : < Error[3] : msg > : 2")

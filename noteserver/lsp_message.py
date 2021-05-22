@@ -2,7 +2,7 @@
 from __future__ import annotations
 import dataclasses
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 
 def _serialize_content_with_header(content: Dict[str, Any]) -> bytes:
@@ -21,11 +21,14 @@ class LspRequest:
   """Describes a request RPC."""
   id: int
   method: str
-  params: Optional[Dict[str, Any]]
+  params: Optional[Dict[str, Any]] = None
 
   def __str__(self) -> str:
     """Writes the LspRequest as a string."""
-    return f"{self.id} - {self.method} - {self.params}"
+    res = f"Request[{self.id}][{self.method}]"
+    if self.params is not None:
+      res += f" : {self.params}"
+    return res
 
   def serialize(self) -> bytes:
     """Creates a LSP message with header and content components.
@@ -72,7 +75,14 @@ class LspError:
   """Describes an error to be transmitted over the LSP protocol."""
   code: int
   message: str
-  data: Optional[Any]
+  data: Optional[Any] = None
+
+  def __str__(self) -> str:
+    """Writes the LspError to a string."""
+    res = f"Error[{self.code}] : {self.message}"
+    if self.data is not None:
+      res += f" : {self.data}"
+    return res
 
 
 @dataclasses.dataclass
@@ -81,3 +91,12 @@ class LspResponse:
   id: int
   result: Optional[Any] = None
   error: Optional[LspError] = None
+
+  def __str__(self) -> str:
+    """Writes the LspResponse as a string."""
+    tokens: List[str] = [f"Response[{self.id}]"]
+    if self.error is not None:
+      tokens.append(f"< {self.error} >")
+    if self.result is not None:
+      tokens.append(str(self.result))
+    return " : ".join(tokens)
