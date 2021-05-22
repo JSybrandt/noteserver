@@ -38,7 +38,13 @@ def create_flask_server(name: str = __name__,
     """
     request = lsp_message.LspRequest.parse(flask.request.data)
     logger.info("%s", request)
-    # Echo the request. Need to change this soon.
-    return request.serialize()
+    # Send an error response, because nothing is built yet.
+    response = lsp_message.LspResponse(
+        request.id,
+        error=lsp_message.LspError(
+            code=lsp_message.INTERNAL_ERROR,
+            message=f"'{request.method}' is not implemented yet.",
+            data=request.get_content()))
+    return response.serialize()
 
   return app
