@@ -19,6 +19,12 @@ class LSPMessageTest(unittest.TestCase):
     actual = lsp_message.LspRequest.parse(expected.serialize())
     self.assertEqual(actual, expected)
 
+  def test_serialize_and_parse_lsp_request_no_params(self):
+    """Tests that an encoded message without params can be decoded."""
+    expected = lsp_message.LspRequest(id=1, method="test/method")
+    actual = lsp_message.LspRequest.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
   def test_serialize_lsp_request(self):
     """Tests that an encoded message matches an expected format."""
     request = lsp_message.LspRequest(id=1,
@@ -41,6 +47,68 @@ class LSPMessageTest(unittest.TestCase):
             "method": "test/method",
             "params": {
                 "param": "val"
+            }
+        })
+
+  def test_serialize_and_parse_lsp_response(self):
+    """Tests that a serialized response can deserialized."""
+    expected = lsp_message.LspResponse(id=1,
+                                       result="test_result",
+                                       error=lsp_message.LspError(
+                                           code=2,
+                                           message="msg",
+                                           data="test_data"))
+    actual = lsp_message.LspResponse.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
+  def test_serialize_and_parse_lsp_response_no_error(self):
+    """Tests that a serialized response without an error can deserialized."""
+    expected = lsp_message.LspResponse(id=1, result="test_result")
+    actual = lsp_message.LspResponse.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
+  def test_serialize_and_parse_lsp_response_no_result(self):
+    """Tests that a serialized response without result can deserialized."""
+    expected = lsp_message.LspResponse(id=1,
+                                       error=lsp_message.LspError(
+                                           code=2,
+                                           message="msg",
+                                           data="test_data"))
+    actual = lsp_message.LspResponse.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
+  def test_serialize_and_parse_lsp_response_only_id(self):
+    """Tests that a serialized response without result can deserialized."""
+    expected = lsp_message.LspResponse(id=1)
+    actual = lsp_message.LspResponse.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
+  def test_serialize_lsp_response_header(self):
+    """Tests that a serialized response matches the LSP protocol."""
+    message = lsp_message.LspResponse(id=1,
+                                      result="test_result",
+                                      error=lsp_message.LspError(
+                                          code=2,
+                                          message="msg",
+                                          data="test_data")).serialize()
+    # Message should contain "\r\n\r\n" that splits the header from content.
+    tokens = message.decode("utf-8").split("\r\n\r\n")
+    self.assertEqual(len(tokens), 2)
+    header, content = tokens
+    # The header should describe the content.
+    expected_header = ("Content-Length: 113\r\n"
+                       "Content-Type: application/vscode-jsonrpc;charset=utf-8")
+    self.assertEqual(header, expected_header)
+    # The content should be a json string that contains the LspRequest.
+    self.assertEqual(
+        json.loads(content), {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": "test_result",
+            "error": {
+                "code": 2,
+                "message": "msg",
+                "data": "test_data",
             }
         })
 
