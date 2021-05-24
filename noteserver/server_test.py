@@ -6,6 +6,24 @@ from noteserver import server
 from noteserver import lsp_message
 
 
+class ServerTest(unittest.TestCase):
+  """Behavior of server.py"""
+
+  def test_unimplimented_error(self):
+    """Tests that an unimplimented request produces an error response."""
+    reader = io.BytesIO(
+        lsp_message.LspRequest(id=1, method="test/method").serialize())
+    writer = io.BytesIO()
+    test_server = server.Server(reader, writer)
+    test_server.run()
+    actual = lsp_message.LspResponse.parse(writer.getvalue())
+    expected = lsp_message.LspResponse(
+        id=1,
+        error=lsp_message.LspError(code=lsp_message.INTERNAL_ERROR,
+                                   message="test/method not implemented"))
+    self.assertEqual(actual, expected)
+
+
 class LspMessageSourceTest(unittest.TestCase):
   """Tests the message IO behavior of server.py"""
 

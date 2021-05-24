@@ -10,6 +10,7 @@ messages to its dispatcher callback, and forwards responses to its output.
 import io
 from typing import Iterable
 from noteserver import lsp_message
+from noteserver import dispatcher
 
 
 def lsp_message_source(
@@ -61,3 +62,20 @@ def lsp_message_source(
   # By the time we reach this, the buffer should be empty.
   if lsp_buffer:
     raise ValueError(f"Invalid input. Remaining buffer: {lsp_buffer}")
+
+
+class Server:  # pylint: disable=too-few-public-methods
+  """Responsible for handling IO."""
+
+  def __init__(self, reader: io.BufferedIOBase, writer: io.BufferedIOBase):
+    """LspMessages read from reader and written to writer."""
+    self._reader = reader
+    self._writer = writer
+    self._dispatcher = dispatcher.Dispatcher()
+
+  def run(self):
+    """Runs the server."""
+    for client_message in lsp_message_source(self._reader):
+      for server_message in self._dispatcher(client_message):
+        self._writer.write(server_message.serialize())
+      self._writer.flush()
