@@ -7,14 +7,14 @@ This module exposes a Server class that buffers messages from its input, sends
 messages to its dispatcher callback, and forwards responses to its output.
 """
 
-import io
-from typing import Iterable
+from typing import Iterable, BinaryIO
+import logging
 from noteserver import lsp_message
 from noteserver import dispatcher
 
 
 def lsp_message_source(
-    buffered_reader: io.BufferedIOBase) -> Iterable[lsp_message.LspMessage]:
+    buffered_reader: BinaryIO) -> Iterable[lsp_message.LspMessage]:
   """Yields LspMessages present in the buffered_reader.
 
   The full LspMessage format is described in lsp_message.py
@@ -67,7 +67,7 @@ def lsp_message_source(
 class Server:  # pylint: disable=too-few-public-methods
   """Responsible for handling IO."""
 
-  def __init__(self, reader: io.BufferedIOBase, writer: io.BufferedIOBase):
+  def __init__(self, reader: BinaryIO, writer: BinaryIO):
     """LspMessages read from reader and written to writer."""
     self._reader = reader
     self._writer = writer
@@ -76,6 +76,8 @@ class Server:  # pylint: disable=too-few-public-methods
   def run(self):
     """Runs the server."""
     for client_message in lsp_message_source(self._reader):
+      logging.info("Read %s", client_message)
       for server_message in self._dispatcher(client_message):
         self._writer.write(server_message.serialize())
+        logging.info("Wrote %s", server_message)
       self._writer.flush()
