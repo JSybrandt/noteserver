@@ -2,7 +2,7 @@
 from __future__ import annotations
 import dataclasses
 import json
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 
 
 def _serialize_content_with_header(content: Dict[str, Any]) -> bytes:
@@ -217,3 +217,31 @@ class LspResponse:
       raise ValueError(r"Serialized LSP Response does not contain \r\n\r\n.")
     content = json.loads(tokens[1])
     return LspResponse.from_content(content)
+
+
+# A type hint for specifying any of the LSP messages.
+LspMessage = Union[LspResponse, LspRequest]
+
+
+def parse(message: bytes) -> LspMessage:
+  """Returns the correct LspMessage parsed from `message`.
+
+  Args:
+    message: A serialized LspMessage.
+
+  Returns:
+    An LspMessage. The type depends on the fields present in the content
+    section of `message`.
+
+  Raises:
+    ValueError: If `message` cannot be parsed by any LspMessage type.
+  """
+  try:
+    return LspRequest.parse(message)
+  except ValueError:
+    pass
+  try:
+    return LspResponse.parse(message)
+  except ValueError:
+    pass
+  raise ValueError(f"Could not parse `message` as any LspMessage: {message}")

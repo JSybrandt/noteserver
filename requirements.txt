@@ -1,8 +1,3 @@
 # This file contains all python dependencies needed by Noteserver.
 # This file is parsed by setup.py to identify dependencies.
 # Make sure to specify both the package name and version number.
-
-
-# Flask is used as both our webserver and LSP server. Flask is responsible for
-# receiving requests and sending responses to both browsers and editors.
-flask==2.0.0
