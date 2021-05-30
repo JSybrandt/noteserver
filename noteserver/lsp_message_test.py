@@ -7,6 +7,17 @@ from noteserver import lsp_message
 class LSPMessageTest(unittest.TestCase):
   """Tests the creation and parsing of LSP RPCs."""
 
+  def test_serialize_and_parse_lsp_notification(self):
+    """Tests that an encoded message can be decoded."""
+    expected = lsp_message.LspNotification(method="test/method",
+                                           params={
+                                               "str_param": "foo",
+                                               "int_param": 1,
+                                               "float_param": 2.1,
+                                           })
+    actual = lsp_message.LspNotification.parse(expected.serialize())
+    self.assertEqual(actual, expected)
+
   def test_serialize_and_parse_lsp_request(self):
     """Tests that an encoded message can be decoded."""
     expected = lsp_message.LspRequest(id=1,

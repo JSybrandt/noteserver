@@ -17,6 +17,76 @@ def _serialize_content_with_header(content: Dict[str, Any]) -> bytes:
 
 
 @dataclasses.dataclass
+class LspNotification:
+  """Describes a notification RPC that doesn't require a response."""
+  method: str
+  params: Optional[Dict[str, Any]] = None
+
+  def __str__(self) -> str:
+    """Writes the LspNotification as a string."""
+    res = f"Notification[{self.method}]"
+    if self.params is not None:
+      res += f" : {self.params}"
+    return res
+
+  def get_content(self) -> Dict[str, Any]:
+    """Returns the content of this Lsp Message."""
+    content = {
+        "jsonrpc": "2.0",
+        "method": self.method,
+    }
+    if self.params is not None:
+      content["params"] = self.params
+    return content
+
+  def serialize(self) -> bytes:
+    """Creates a LSP message with header and content components.
+
+    Returns:
+      A serialized LSP message, which contains a header and content
+      section. The header describes the content, while the content itself is a
+      utf-8 encoded json-rpc message.
+    """
+    return _serialize_content_with_header(self.get_content())
+
+  @classmethod
+  def from_content(cls, content: Dict[str, Any]) -> LspNotification:
+    """Creates the LspNotification from a content dict.
+
+    Returns:
+      An LspNotification with values from 'content'
+
+    Raises:
+      ValueError: If the content does not contain the expected fields.
+    """
+    if "method" not in content:
+      raise ValueError("Serialized LSP Notification does not contain method")
+    notification = LspNotification(content["method"])
+    if "params" in content:
+      notification.params = content["params"]
+    return notification
+
+  @classmethod
+  def parse(cls, message: bytes) -> LspNotification:
+    """Extracts the method name and rpc parameters of a given LSP message.
+
+    Args:
+      message: A string containing an LSP header and content segment.
+
+    Returns:
+      An LspNotification object containing the content from `message`.
+
+    Raises:
+      ValueError: The message cannot be parsed.
+    """
+    tokens = message.decode("utf-8").split("\r\n\r\n")
+    if len(tokens) != 2:
+      raise ValueError(r"Serialized LSP Request does not contain \r\n\r\n.")
+    content = json.loads(tokens[1])
+    return LspNotification.from_content(content)
+
+
+@dataclasses.dataclass
 class LspRequest:
   """Describes a request RPC."""
   id: int
@@ -220,7 +290,7 @@ class LspResponse:
 
 
 # A type hint for specifying any of the LSP messages.
-LspMessage = Union[LspResponse, LspRequest]
+LspMessage = Union[LspResponse, LspRequest, LspNotification]
 
 
 def parse(message: bytes) -> LspMessage:
@@ -236,6 +306,10 @@ def parse(message: bytes) -> LspMessage:
   Raises:
     ValueError: If `message` cannot be parsed by any LspMessage type.
   """
+  try:
+    return LspNotification.parse(message)
+  except ValueError:
+    pass
   try:
     return LspRequest.parse(message)
   except ValueError:
