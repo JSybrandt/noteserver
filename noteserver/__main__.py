@@ -26,14 +26,9 @@ def main(verbose: bool = False, log_path: Optional[str] = None):
     verbose: Include for additional logging.
     log_path: Set to write debug logs to a file.
   """
-  # Configure logger to console.
-  stream_handler = logging.StreamHandler()
-  stream_handler.setLevel(logging.INFO if verbose else logging.ERROR)
-  logging.getLogger().addHandler(stream_handler)
-  if log_path is not None:
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(logging.DEBUG)
-    logging.getLogger().addHandler(file_handler)
+  logging.basicConfig(filename=log_path,
+                      filemode="w",
+                      level=logging.DEBUG if verbose else logging.WARNING)
 
   # Start server!
   while True:
