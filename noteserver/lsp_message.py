@@ -16,11 +16,17 @@ def _serialize_content_with_header(content: Dict[str, Any]) -> bytes:
   return header.encode("utf-8") + serialized_content
 
 
+# Represents a parameter message accompanying an LspMessage. These parameters
+# may be positional args (list) or keyword args (dict). Some messages may have
+# no args at all.
+Parameter = Optional[Union[List[Any], Dict[str, Any]]]
+
+
 @dataclasses.dataclass
 class LspNotification:
   """Describes a notification RPC that doesn't require a response."""
   method: str
-  params: Optional[Dict[str, Any]] = None
+  params: Parameter = None
 
   def __str__(self) -> str:
     """Writes the LspNotification as a string."""
@@ -91,7 +97,7 @@ class LspRequest:
   """Describes a request RPC."""
   id: int
   method: str
-  params: Optional[Dict[str, Any]] = None
+  params: Parameter = None
 
   def __str__(self) -> str:
     """Writes the LspRequest as a string."""
@@ -306,12 +312,14 @@ def parse(message: bytes) -> LspMessage:
   Raises:
     ValueError: If `message` cannot be parsed by any LspMessage type.
   """
+  # Its important to check Request before Notification, because Notification
+  # contains a subset of Request's necessary fields.
   try:
-    return LspNotification.parse(message)
+    return LspRequest.parse(message)
   except ValueError:
     pass
   try:
-    return LspRequest.parse(message)
+    return LspNotification.parse(message)
   except ValueError:
     pass
   try:

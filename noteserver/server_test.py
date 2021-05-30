@@ -83,10 +83,10 @@ class LspMessageSourceTest(unittest.TestCase):
     """Raises a ValueError if the content isn't an expected LspMessage."""
     message = (
         # This content-length is correct.
-        b"Content-Length: 43\r\n"
+        b"Content-Length: 18\r\n"
         b"Content-Type: application/vscode-jsonrpc;charset=utf-8\r\n"
         b"\r\n"
-        # This message is missing the "id" field.
-        b'{"jsonrpc": "2.0", "method": "test/method"}')
+        # This message is missing the "method" field.
+        b'{"jsonrpc": "2.0"}')
     with self.assertRaises(ValueError):
       list(server.lsp_message_source(io.BytesIO(message)))
