@@ -78,3 +78,36 @@ $ git push
 ```
 
 Now you can go to Github and [start a pull request](https://bit.ly/3omDiCT).
+
+
+# Testing with VIM
+
+So far, the easiest way to test Noteserver in a real editor is to use the
+following snippet in your `.vimrc`
+
+
+```
+" Use the Plugged plugin managher to install vim-lsp. When you first boot vim,
+" make sure to run `:PlugInstall`
+call plug#begin('~/.vim/plugged')
+Plug 'prabirshrestha/vim-lsp'
+call plug#end()
+
+" Configure vim to detect `.note` files as type `note`.
+autocmd BufNewFile,BufRead *.note set ft=note
+
+" Tell vim-lsp to start `noteserver` when we open a `note` file. To help debug
+" problems, we will write noteserver logs to the `./noteserver.log` file.
+au User lsp_setup call lsp#register_server({
+     \ 'name': 'noteserver',
+     \ 'cmd': {server_info->['python', '-m', 'noteserver',
+     \                       '--log_path=./noteserver.log', '--verbose']},
+     \ 'allowlist': ['note']
+     \ })
+```
+
+You can now launch vim with noteserver using the following:
+
+```
+$ vim test.note
+```
