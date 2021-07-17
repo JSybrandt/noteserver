@@ -3,10 +3,11 @@
 # Get the location of this script, which should live in
 # .../noteserver/vim_test_env.
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+VIMRC="$SCRIPT_DIR/vimrc"
+VIM_LSP_PLUG_DIR="$SCRIPT_DIR/bundle/vim_lsp"
 
-VIMRC=$SCRIPT_DIR/vimrc
+# Vim runtimepath is comma-separated.
+RUNTIME_PATH="$VIMRC,$VIM_LSP_PLUG_DIR"
 
-echo "Launching vim using $SCRIPT_DIR as the runtimepath."
-
-vim --cmd "set rtp=$SCRIPT_DIR" -u "$VIMRC"
+vim -c "set rtp=$RUNTIME_PATH" -u "$VIMRC"

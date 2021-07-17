@@ -1,0 +1,15 @@
+set term=screen-256color
+set spell spelllang=en_us
+set linebreak
+set wildmenu
+
+
+
+" Enable noteserver when you start a .note file
+if executable('noteserver')
+  " pip install python-language-server
+  au User lsp_setup call lsp#register_server({'name': 'noteserver', 'cmd': {server_info->['noteserver']}, 'allowlist': ['note']})
+else
+  echo "FAILED TO FIND NOTESERVER"
+  q
+endif
