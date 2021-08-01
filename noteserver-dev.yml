@@ -25,6 +25,7 @@ dependencies:
     - attrs==21.2.0
     - click==8.0.0
     - decorator==4.4.2
+    - fire==0.4.0
     - flask==2.0.0
     - importlab==0.6.1
     - isort==5.8.0
@@ -40,6 +41,7 @@ dependencies:
     - pytype==2021.5.14
     - pyyaml==5.4.1
     - six==1.16.0
+    - termcolor==1.1.0
     - toml==0.10.2
     - typed-ast==1.4.3
     - werkzeug==2.0.0
