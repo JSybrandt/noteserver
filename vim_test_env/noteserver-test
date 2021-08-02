@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# This is an executable that our test vim will use to launch the noteserver
+# module.
+
+# Log the current interaction in a file named by the current timestamp.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+LOG_DIR="$SCRIPT_DIR/logs"
+mkdir $LOG_DIR
+LOG_FILE="$LOG_DIR/$(date -Iseconds)"
+
+python3 -m noteserver --verbose=true --logpath=$LOG_FILE

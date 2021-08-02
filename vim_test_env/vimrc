@@ -1,14 +1,26 @@
+" This VIMRC is sourced using the launch_vim.sh script. We expect the current
+" working directory to be noteserver/vim_test_env. All paths are relative.
+
+set nocompatible
 set term=screen-256color
 set spell spelllang=en_us
 set linebreak
 set wildmenu
 
+call plug#begin('./plugged')
+Plug 'tpope/vim-sensible'
+Plug 'prabirshrestha/vim-lsp'
+call plug#end()
 
 
-" Enable noteserver when you start a .note file
-if executable('noteserver')
+
+" Run the noteserver-test binary when we open a .note file.
+if executable('./noteserver-test')
   " pip install python-language-server
-  au User lsp_setup call lsp#register_server({'name': 'noteserver', 'cmd': {server_info->['noteserver']}, 'allowlist': ['note']})
+  au User lsp_setup call lsp#register_server(
+        \ {'name': 'noteserver',
+        \  'cmd': {server_info->['./noteserver-test']},
+        \  'allowlist': ['note']})
 else
   echo "FAILED TO FIND NOTESERVER"
   q
